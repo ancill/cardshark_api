@@ -8,11 +8,12 @@ import (
 )
 
 func TestGETCards(t *testing.T) {
+	server := &SharkyServer{}
 	t.Run("returns quantity of cards for 'Spanish' deck", func(t *testing.T) {
 		request := newGetDeckRequest("Spanish")
 		response := httptest.NewRecorder()
 
-		SharkyServer(response, request)
+		server.ServeHTTP(response, request)
 
 		got := response.Body.String()
 		want := "20"
@@ -24,7 +25,7 @@ func TestGETCards(t *testing.T) {
 		request := newGetDeckRequest("English")
 		response := httptest.NewRecorder()
 
-		SharkyServer(response, request)
+		server.ServeHTTP(response, request)
 
 		got := response.Body.String()
 		want := "30"
