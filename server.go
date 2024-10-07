@@ -9,11 +9,17 @@ import (
 func SharkyServer(w http.ResponseWriter, r *http.Request) {
 	deck := strings.TrimPrefix(r.URL.Path, "/decks/")
 
+	fmt.Fprint(w, GetDeckQuantity(deck))
+}
+
+// Count provided deck length and return quantity for it
+func GetDeckQuantity(deck string) string {
 	if deck == "Spanish" {
-		fmt.Fprint(w, "20")
+		return "20"
 	}
 
 	if deck == "English" {
-		fmt.Fprint(w, "30")
+		return "30"
 	}
+	return ""
 }

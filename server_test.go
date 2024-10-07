@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -8,7 +9,7 @@ import (
 
 func TestGETCards(t *testing.T) {
 	t.Run("returns quantity of cards for 'Spanish' deck", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/decks/Spanish", nil)
+		request := newGetDeckRequest("Spanish")
 		response := httptest.NewRecorder()
 
 		SharkyServer(response, request)
@@ -16,13 +17,11 @@ func TestGETCards(t *testing.T) {
 		got := response.Body.String()
 		want := "20"
 
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+		assertResponseBody(t, got, want)
 	})
 
 	t.Run("returns quantity of cards for 'English' deck", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodGet, "/decks/English", nil)
+		request := newGetDeckRequest("English")
 		response := httptest.NewRecorder()
 
 		SharkyServer(response, request)
@@ -30,8 +29,18 @@ func TestGETCards(t *testing.T) {
 		got := response.Body.String()
 		want := "30"
 
-		if got != want {
-			t.Errorf("got %q, want %q", got, want)
-		}
+		assertResponseBody(t, got, want)
 	})
+}
+
+func newGetDeckRequest(deck string) *http.Request {
+	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/decks/%s", deck), nil)
+	return request
+}
+
+func assertResponseBody(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("response body is wrong, got %q, want %q", got, want)
+	}
 }
