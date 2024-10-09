@@ -7,7 +7,8 @@ import (
 )
 
 type SharkyStore interface {
-	GetDeckQuantity(deck string) string
+	// Counting provided deck length and return size
+	GetDeckSize(deck string) int
 }
 
 type SharkyServer struct {
@@ -17,17 +18,16 @@ type SharkyServer struct {
 func (s *SharkyServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	deck := strings.TrimPrefix(r.URL.Path, "/decks/")
 
-	fmt.Fprint(w, s.GetDeckQuantity(deck))
+	fmt.Fprint(w, s.store.GetDeckSize(deck))
 }
 
-// Count provided deck length and return quantity for it
-func (s *SharkyServer) GetDeckQuantity(deck string) string {
+func GetDeckSize(deck string) int {
 	if deck == "Spanish" {
-		return "20"
+		return 20
 	}
 
 	if deck == "English" {
-		return "30"
+		return 30
 	}
-	return ""
+	return 0
 }

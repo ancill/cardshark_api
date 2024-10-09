@@ -7,8 +7,25 @@ import (
 	"testing"
 )
 
+type StubDeckStore struct {
+	size map[string]int
+}
+
+func (s *StubDeckStore) GetDeckSize(deck string) int {
+	size := s.size[deck]
+	return size
+}
+
 func TestGETCards(t *testing.T) {
-	server := &SharkyServer{}
+	store := StubDeckStore{
+		size: map[string]int{
+			"Spanish": 20,
+			"English": 30,
+		},
+	}
+	server := &SharkyServer{
+		&store,
+	}
 	t.Run("returns quantity of cards for 'Spanish' deck", func(t *testing.T) {
 		request := newGetDeckRequest("Spanish")
 		response := httptest.NewRecorder()
