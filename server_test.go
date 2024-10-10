@@ -49,6 +49,17 @@ func TestGETCards(t *testing.T) {
 
 		assertResponseBody(t, got, want)
 	})
+	t.Run("returns 404 on missing deck", func(t *testing.T) {
+		request := newGetDeckRequest("Chinise")
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		got := response.Code
+		want := http.StatusNotFound
+
+		assertResponseBody(t, got, want)
+	})
 }
 
 func newGetDeckRequest(deck string) *http.Request {
