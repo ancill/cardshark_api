@@ -16,9 +16,20 @@ type SharkyServer struct {
 }
 
 func (s *SharkyServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		w.WriteHeader(http.StatusAccepted)
+		return
+	}
+
 	deck := strings.TrimPrefix(r.URL.Path, "/decks/")
 
-	fmt.Fprint(w, s.store.GetDeckSize(deck))
+	score := s.store.GetDeckSize(deck)
+
+	if score == 0 {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	fmt.Fprint(w, score)
 }
 
 func GetDeckSize(deck string) int {

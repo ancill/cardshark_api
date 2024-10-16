@@ -55,11 +55,34 @@ func TestGETCards(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-		got := response.Code
-		want := http.StatusNotFound
 
-		assertResponseBody(t, got, want)
+		assertStatus(t, response.Code, http.StatusNotFound)
 	})
+}
+
+
+func TestDeckStore(t *testing.T) {
+	store := StubDeckStore{
+		map[string]int{},
+	}
+
+	server := &SharkyServer{&store}
+
+	t.Run("it returns accepted on POST", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodPost, "/decks/English", nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusAccepted)
+	})
+}
+
+func assertStatus(t testing.TB, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("did not get correct status, got %d, want %d", got, want)
+	}
 }
 
 func newGetDeckRequest(deck string) *http.Request {
