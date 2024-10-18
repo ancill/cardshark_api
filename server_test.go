@@ -8,12 +8,17 @@ import (
 )
 
 type StubDeckStore struct {
-	size map[string]int
+	size  map[string]int
+	decks []string
 }
 
 func (s *StubDeckStore) GetDeckSize(deck string) int {
 	size := s.size[deck]
 	return size
+}
+
+func (s *StubDeckStore) RecordDeck(deck string) {
+	s.decks = append(s.decks, deck)
 }
 
 func TestGETCards(t *testing.T) {
@@ -55,27 +60,40 @@ func TestGETCards(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
-
 		assertStatus(t, response.Code, http.StatusNotFound)
 	})
 }
 
-
 func TestDeckStore(t *testing.T) {
 	store := StubDeckStore{
 		map[string]int{},
+		nil,
 	}
 
 	server := &SharkyServer{&store}
 
 	t.Run("it returns accepted on POST", func(t *testing.T) {
-		request, _ := http.NewRequest(http.MethodPost, "/decks/English", nil)
+		deck := "Spanish"
+		request := newPostDeckRequest(deck)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, http.StatusAccepted)
+
+		if len(store.decks) != 1 {
+			t.Errorf("got %d calls to RecordDeck want %d", len(store.decks), 1)
+		}
+
+		if store.decks[0] != deck {
+			t.Errorf("did not store correct deck got %q want %q", store.decks[0], deck)
+		}
 	})
+}
+
+func newPostDeckRequest(deck string) *http.Request {
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/decks/%s", deck), nil)
+	return req
 }
 
 func assertStatus(t testing.TB, got, want int) {

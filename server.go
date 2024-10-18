@@ -9,6 +9,7 @@ import (
 type SharkyStore interface {
 	// Counting provided deck length and return size
 	GetDeckSize(deck string) int
+	RecordDeck(deck string)
 }
 
 type SharkyServer struct {
@@ -16,13 +17,17 @@ type SharkyServer struct {
 }
 
 func (s *SharkyServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		w.WriteHeader(http.StatusAccepted)
-		return
+	deck := strings.TrimPrefix(r.URL.Path, "/decks/")
+	switch r.Method {
+	case http.MethodPost:
+		s.processCard(w, deck)
+	case http.MethodGet:
+		s.showSize(w, deck)
 	}
 
-	deck := strings.TrimPrefix(r.URL.Path, "/decks/")
+}
 
+func (s *SharkyServer) showSize(w http.ResponseWriter, deck string) {
 	score := s.store.GetDeckSize(deck)
 
 	if score == 0 {
@@ -30,6 +35,11 @@ func (s *SharkyServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, score)
+}
+
+func (s *SharkyServer) processCard(w http.ResponseWriter, deck string) {
+	s.store.RecordDeck(deck)
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func GetDeckSize(deck string) int {
