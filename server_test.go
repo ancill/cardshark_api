@@ -91,6 +91,20 @@ func TestDeckStore(t *testing.T) {
 	})
 }
 
+func TestLeague(t *testing.T) {
+	store := StubDeckStore{}
+	server := &SharkyServer{&store}
+
+	t.Run("it returns 200 on /league", func(t *testing.T) {
+		request, _ := http.NewRequest(http.MethodGet, "/league", nil)
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusOK)
+	})
+}
+
 func newPostDeckRequest(deck string) *http.Request {
 	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/decks/%s", deck), nil)
 	return req
